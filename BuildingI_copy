@@ -1,0 +1,36 @@
+#!/usr/local/bin/perl -w
+
+use strict;
+
+my $id= getpwuid($<);
+my $copy_file="/home/u464907/xfer/*";
+my $copy_to_file="/apps/weblogic/propertyprofile/";
+my $server="10.202.51.143";
+my $scp_cmd="/usr/bin/scp $copy_file $id\@$server:$copy_to_file";
+my $ssh="/usr/bin/ssh $server";
+my $rm_cmd="/usr/bin/rm -rf /home/u464907/xfer/*";
+my $per_cmd="/usr/bin/chmod 777 $copy_file";
+
+system $per_cmd;
+system $scp_cmd;
+print "\n";
+print "\n";
+system $rm_cmd;
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "Finshed moving update files now let's update the website\n";
+system $ssh;
+print "\n";

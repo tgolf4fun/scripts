@@ -1,0 +1,50 @@
+#!/bin/bash
+# -- Tomcat service Restart Script for AppDynamics Machine Agent
+# -- author: Keka Ichinose
+# -- This script's job is simple: restart the tomcat service on the box
+# -- Click. Done.
+
+# script vars (fill in any fields contained in <>)
+
+PORT='2007'
+LIFECHECKURL="http://${HOSTFQDN}:${PORT}/cesmidtier/stat.jsp"
+F5USER='sa_f5automation'
+F5PASS='Cnqr2010'
+F5IP='10.208.1.5'
+F5POOL='CTE_EMT'
+LOGPATH=/var/tmp
+
+for t in $SERVERS 
+do
+echo $t
+J_HOST=`ping -c 1 $t | head -1 | awk -F "(" '{print $2}' | awk -F ")" '{print $1}'`
+F5MEMBER="${J_HOST}:${PORT}"
+
+# pull server out of rotation
+echo "*** Tomcat service Restart Script for AppDynamics Machine Agent ***"
+echo "- Pulling $t OOR and stopping tomcat service ***"
+f5response=`eval curl -sk -u '${F5USER}:${F5PASS}' https://${F5IP}/mgmt/tm/ltm/pool/${F5POOL}/members/${F5MEMBER} -H "Content-Type: application/json" -X PUT -d \'{\"state\": \"user-down\", \"session\": \"user-disabled\"}\'`
+
+## check server connections are bled before proceeding
+echo "...making sure connections are bled off before shutting service down..."
+echo "- Pulled $t OOR"
+
+# -- AWK version --
+curConnectionCnt=`eval curl -sk -u '${F5USER}:${F5PASS}' https://${F5IP}/mgmt/tm/ltm/pool/${F5POOL}/members/\~Common\~${F5MEMBER}/stats | awk 'match($0, /curConns":{"value":([0-9]+)}/) { blue = substr($0,RSTART,RLENGTH); split(blue, a, ":"); sub(/}/, "", a[3]); print a[3]; }' | tr -d '\r'`
+echo "current connection count: ${curConnectionCnt}"
+
+ #while server connections > 0, keep checking every 3 seconds
+ while [ "$curConnectionCnt" -gt 1 ]; do
+        sleep 3
+        curConnectionCnt=`eval curl -sk -u '${F5USER}:${F5PASS}' https://${F5IP}/mgmt/tm/ltm/pool/${F5POOL}/members/\~Common\~${F5MEMBER}/stats | awk 'match($0, /curConns":{"value":([0-9]+)}/) { blue = substr($0,RSTART,RLENGTH); split(blue, a, ":"); sub(/}/, "", a[3]); print a[3]; }' | tr -d '\r'`
+        
+        echo "...current connections: ${curConnectionCnt}"
+done
+echo "** All connections closed **"
+
+# shutdown tomcat service
+echo "- Stopping tomcat service..."
+ssh -o StrictHostKeyChecking=no concurasp\\\sa_jenkins-smt@$J_HOST "sudo /sbin/service tomcat stop"
+done
+exit
+

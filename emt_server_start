@@ -1,0 +1,42 @@
+#!/bin/bash
+# -- Tomcat service Restart Script for AppDynamics Machine Agent
+# -- author: Keka Ichinose
+# -- This script's job is simple: restart the tomcat service on the box
+# -- Click. Done.
+
+# script vars 
+PORT='2007'
+F5USER='sa_f5automation'
+F5PASS='Cnqr2010'
+F5IP='10.208.1.5'
+F5POOL='CTE_EMT'
+LOGPATH=/var/tmp
+
+for t in $SERVERS 
+do
+echo $t
+J_HOST=`ping -c 1 $t | head -1 | awk -F "(" '{print $2}' | awk -F ")" '{print $1}'`
+F5MEMBER="${J_HOST}:${PORT}"
+LIFECHECKURL="http://${J_HOST}:${PORT}/cesmidtier/stat.jsp"
+
+# Startup tomcat service
+echo "- Starting tomcat service..."
+ssh -o StrictHostKeyChecking=no concurasp\\\sa_jenkins-smt@$J_HOST "sudo /sbin/service tomcat start"
+
+# execute lifecheck; do NOT proceed until status '1' is returned; retry every 5 seconds
+lifecheckStatus=`curl -s -m 2 ${LIFECHECKURL} | grep 'status' | cut -d \= -f 2 | tr -d '\r'`
+
+echo "- Checking if service is back up..."
+echo "$LIFECHECKURL"
+while [[ "$lifecheckStatus" != "1" ]]; do
+        sleep 5
+        lifecheckStatus=`curl -s -m 2 ${LIFECHECKURL} | grep 'status' | cut -d \= -f 2 | tr -d '\r'`
+        echo "...not responding; polling again in 10 seconds..."
+done
+
+# put server back in rotation
+echo "- Adding server back to rotation..."
+f5response=`eval curl -sk -u '${F5USER}:${F5PASS}' https://${F5IP}/mgmt/tm/ltm/pool/${F5POOL}/members/${F5MEMBER} -H "Content-Type: application/json" -X PUT -d \'{\"state\": \"user-up\", \"session\": \"user-enabled\"}\'`
+
+done
+exit

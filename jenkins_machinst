@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+for t in `cat SERVERS` 
+do
+echo $t
+/usr/bin/scp <path to>/<package name>  concur\\<jenkins account>@$t:/tmp/
+ssh -o StrictHostKeyChecking=no concur\\<jenkins account>@$t /tmp/<package name>
+ssh -o StrictHostKeyChecking=no concur\\<jenkins account>@$t /bin/unzip /tmp/<package name> -d /tmp/machineagent
+ssh -o StrictHostKeyChecking=no concur\\<jenkins account>@$t /tmp/machineagent/machineagent_install
+ssh -o StrictHostKeyChecking=no concur\\<jenkins account>@$t rm -rf /tmp/machineagent
+echo "On to the next one"
+done

@@ -1,0 +1,141 @@
+#!/usr/bin/perl -w
+
+####################################
+#Lets load some useful modules
+####################################
+use strict;
+use List::Util 'sum';
+use List::Util qw(sum);
+
+#####################Variables Used##############################################
+#Create statick hashes with the shopping list and cost
+my %input_1 = ('Book', 12.49, 'Music CD', 14.99, 'Chocolate Bar', 0.85);
+my $input_1;
+my %input_2 = ('imported box of chocolates', 10.00, 'imported bottle of perfume',47.50);
+my $input_2;
+my %input_3 = ('imported bottle of perfume',27.99,'bottle of perfume',18.99,'packet of headache pills',9.75,'box of imported chocolates',11.25);
+my $input_3;
+my @names = keys %input_1;
+my @names2 = keys %input_2;
+my @names3 = keys %input_3;
+my @values = values %input_1;
+my @values2 = values %input_2;
+my @values3 = values %input_3;
+my $names;
+my $names2;
+my $names3;
+my $q = 1;
+my $st = 0.1;#standard sales tax
+my $it = 0.05;#tax on import goods
+my $ft = 0.15;#maximum tax rate
+my $k;
+my $v;
+my $k2;
+my $v2;
+my $k3;
+my $v3;
+my %output_1;
+my $output_1;
+my @output_1;
+my %output_2;
+my $output_2;
+my @output_2;
+my %output_3;
+my $output_3;
+my @output_3;
+###################################################################################
+print "Shopping List 1 contains the following items:\n";
+				print "$q $_ at $input_1{$_}\n" for (keys %input_1);
+print "\n";
+print "\n";
+print "\n";
+my $st_1 = sum(values %input_1);
+print "\n";
+#Iterate over hashes key value pairs to determin what needs tax consideration
+#and what doesn't
+		while(($k,$v) = each %input_1){
+				if ($k =~ m/music/i) {
+							$v= sprintf("%.2f",($v*(1+$st)));
+							push (@output_1,$v);
+							print "$q $k:$v\n";
+							print "\n\n";
+							}else {
+							push (@output_1,$v);
+							print "$q $k:$v\n";	
+							}; 
+						};
+my $ast_1 = sum(0,@output_1);
+my $stc = sprintf("%.2f",($ast_1 - $st_1));
+print "Sales Taxes: $stc\n";
+print "Total: $ast_1\n";
+print"\n";
+
+print "Shopping List 2 contains the following items:\n";
+		print "$q $_ at $input_2{$_}\n" for (keys %input_2);	
+
+print "\n";
+print "\n";
+print "\n";
+my $st_2 = sum(values %input_2);
+print "\n";
+		while(($k2,$v2) = each %input_2){
+                                if ($k2 =~ m/choc/) {
+                                                        $v2= sprintf("%.2f",($v2*(1+$it)));
+                                                        $it= $it*100;
+                                                        push (@output_2,$v2);
+                                                        print "$q $k2:$v2\n";
+                                                        }else {
+							###TODO FIGURE OUT ROUNDING
+							$v2= sprintf("%.2f", (($v2*(1+$ft)+0.03)));
+                                                        $ft=$ft*100;
+							push (@output_2,$v2);
+							print "$q $k2:$v2\n";
+                                                        };
+                                                };
+print "\n\n";
+my $ast_2 = sum(0,@output_2);
+my $stc_2 = sprintf("%.2f",($ast_2 - $st_2));
+print "Sales Taxes: $stc_2\n";
+print "Total: $ast_2\n\n";
+
+print "Shopping List 3 contains the following items:\n";
+		print "$q $_ at $input_3{$_}\n" for (keys %input_3);
+
+print "\n";
+print "\n";
+print "\n";
+my $st_3=sum(values %input_3);
+print "\n";
+		while(($k3,$v3) = each %input_3){
+                                if ($k3 =~ m/imported bottle of perfume/) {
+							$ft=0.15;
+                                                        $v3= sprintf("%.2f",($v3*(1+$ft)));
+                                                        $ft= $ft*100;
+                                                        push (@output_3,$v3);
+                                                        print "$q $k3:$v3\n";
+                                                        }elsif ($k3 =~ m/perfume/){
+                                                        ###TODO FIGURE OUT ROUNDING
+                                                        $st=0.10;
+							$v3= sprintf("%.2f", ($v3*(1+$st)));
+                                                        $st=$st*100;
+                                                        push (@output_3,$v3);
+                                                        print "$q $k3:$v3\n";
+							}elsif ($k3 =~ m/choc/){
+                                                        print"\n";
+                                                        ###TODO FIGURE OUT ROUNDING
+                                                        $it=0.05;
+							$v3= sprintf("%.2f", (($v3*(1+$it)+0.04)));
+                                                        $it=$it*100;
+                                                        push (@output_3,$v3);
+                                                        print "$q $k3:$v3\n";
+							}else{
+							push (@output_3,$v3);
+                                                        print "$q $k3:$v3\n";
+							}
+                                                 };
+my $ast_3 = sum(0,@output_3);
+my $stc_3 = sprintf("%.2f",($ast_3 - $st_3));
+print "\n\n";
+print "Sales Taxes: $stc_3\n";
+print "Total: $ast_3\n";
+print "\n\n";

@@ -1,0 +1,85 @@
+#!/usr/bin/perl -w
+
+use strict;
+use File::Copy;
+use warnings;
+
+my $from_dir="/apps/weblogic/propertyprofile"; 
+#my $to_dir="/apps/wli81/domains/cpsdomain/applications/propertyprofile/CAD/FloorPlan";
+my $to_dir="/apps/weblogic/test";
+my @update;
+my $update;
+my @prod;
+my $i;
+my $h;
+my $k;
+my $c;
+my $cp_cmd="/usr/bin/cp"; 
+my %seen;
+my @file_lookup;
+my $q;
+my $q_text;
+my @quotes;
+my $t;
+print "\n";
+print "\n";
+my $ql="/apps/weblogic/quotes";
+
+	{
+		local ($/);
+		open($q, $ql) or die "Error, File does not exist $!\n";
+		$q_text=<$q>
+	}
+@quotes = split(/:/,$q_text);
+#$t = $quotes[rand @quotes];
+
+opendir (DIR2,"$to_dir") || die "Cannot open directory $!";
+@prod=readdir(DIR2);
+closedir(DIR2);
+
+@prod = sort @prod;
+
+foreach $h(@prod){$seen{$h} = 1}
+
+opendir(DIR,"$from_dir") || die "Cannot open directory $!";
+@update=readdir(DIR);
+closedir(DIR);
+
+@update= sort @update;
+
+print "\n";
+print "\n";
+print "\n";
+my %file_lookup;
+for my $file ( @update ) {
+    push @{$file_lookup{substr($file, 0, 4) } }, 1;
+    }
+
+for my $dir(@prod) {
+	next unless exists $file_lookup{$dir};
+	for my $file (${file_lookup{$dir}}){
+	FILE:
+	$t = $quotes[rand @quotes];
+	for my $file (@update) {
+    	my $f = substr($file, 0, 4);
+    	next if not $seen{$f};{
+	if ($f eq ".") { print "$t\n";}
+	elsif ($f eq "..") {
+	print "$t\n";}
+	else {copy("$from_dir/$file", "$to_dir/$f") or warn "Cannot copy $file to $to_dir/$f $!";
+			}
+		}
+	}
+}
+}
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "\n";
+print "All done now, have a nice day and thank you for your patience\n";
+print "\n";
+print "\n";
+print "\n";
+ 
