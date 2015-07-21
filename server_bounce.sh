@@ -1,9 +1,6 @@
 #!/bin/bash
 #------------------------------------------------------------------------------
 # Filename: emt_service_bounce.sh
-# Author  : K. Wright
-# Date    : 2014-08-04
-# Purpose : Restart tomcat via AppDynamics agent / tc-server user.
 # Ticket  : OPI-31424
 #
 #------------------------------------------------------------------------------
