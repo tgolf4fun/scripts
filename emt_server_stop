@@ -1,6 +1,4 @@
 #!/bin/bash
-# -- Tomcat service Restart Script for AppDynamics Machine Agent
-# -- author: Keka Ichinose
 # -- This script's job is simple: restart the tomcat service on the box
 # -- Click. Done.
 
@@ -8,10 +6,10 @@
 
 PORT='2007'
 LIFECHECKURL="http://${HOSTFQDN}:${PORT}/cesmidtier/stat.jsp"
-F5USER='sa_f5automation'
-F5PASS='Cnqr2010'
-F5IP='10.208.1.5'
-F5POOL='CTE_EMT'
+F5USER=''
+F5PASS=''
+F5IP=''
+F5POOL=''
 LOGPATH=/var/tmp
 
 for t in $SERVERS 
