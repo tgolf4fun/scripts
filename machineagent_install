@@ -1,0 +1,58 @@
+#!/bin/sh
+
+#Use this script to install the AppDynamics Machine agents on the target servers
+#This script is easy to use and does the following:
+#When you run the machineagent_install script
+#the needed binaries and files are copied in place. 
+#Then file permissions are updated, the machine agent
+#start script is added with chkconfig an the service
+#is initially started via the manual start script,
+#subsequest service restarts will then be handled by 
+#init.d 
+
+#########################
+#PWD=`pwd`
+ZIP_OPEN="/usr/bin/unzip -o"
+APPD_MA_HOME="/opt/appdynamics/machineagent"
+APPD_JDK_HOME="/opt/appdynamics/jdk"
+APPD_BIN_DIR="/opt/appdynamics/bin"
+MACHINEAGENT_PKG="/machine_agent.zip"
+APPD_JDK_PKG="/appd_jdk.zip"
+COPY_CMD="/bin/cp -rf"
+PRO_START="appd_machineagent"
+MANU_START="appd_machineagent_start.sh"
+MK_CMD="/bin/mkdir -p"
+CH_MOD="/bin/chmod"
+CH_OWN="/bin/chown"
+ADD_SVC="/sbin/chkconfig --add"
+SVC_START="/etc/init.d/appd_machineagent start"
+K_PID="`/bin/ps -ef | grep -i machineagent | grep -v grep | awk '{ print $2 }'`"
+##########################
+#Check to see if a machine agent is running and then kill it 
+#clean up the previous installation and continue on
+if [ -z "$K_PID" ]
+        then
+        echo $K_PID
+        `echo 'My8a1Lsich' | sudo -S /bin/kill -9 $K_PID 2>&1`
+fi
+
+        `echo '<Network password>' | sudo -S /bin/rm -rf /opt/appdynamics/machineagent 2>&1`
+        `echo '<Network password>' | sudo -S /sbin/chkconfig --del appd_machineagent 2>&1`
+        `echo '<Network password>' | sudo -S /bin/rm -rf /etc/init.d/appd_machineagent 2>&1`
+#Set up directories
+#Creating the machine agent home and jdk home
+$MK_CMD $APPD_MA_HOME
+$MK_CMD $APPD_JDK_HOME
+
+#move files into the correct locations
+$ZIP_OPEN /tmp/machineagent$MACHINEAGENT_PKG -d $APPD_MA_HOME 
+$ZIP_OPEN /tmp/machineagent$APPD_JDK_PKG -d $APPD_JDK_HOME
+$COPY_CMD /tmp/machineagent/$PRO_START /etc/init.d/
+$MK_CMD $APPD_BIN_DIR; $COPY_CMD /tmp/machineagent/$MANU_START $APPD_BIN_DIR
+
+#Install the appd_machine agent service for automated starting
+$ADD_SVC $PRO_START 
+
+#Manually start the machine agent the first time to ensure it works
+#$APPD_BIN_DIR/$MANU_START &
+$SVC_START

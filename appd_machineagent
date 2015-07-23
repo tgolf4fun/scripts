@@ -1,0 +1,82 @@
+#!/bin/sh
+#
+# /etc/init.d/appd_machineagent
+# init script for AppDynamics MachineAgent.
+# Author: Keka Ichinose <keka.ichinose@concur.com>
+#
+# chkconfig: 2345 90 60
+# description: AppDynamics Machine Agent
+#
+RETVAL=0
+APPD_HOME="/opt/appdynamics"
+AGENT_USER=tc-server
+ 
+ 
+## START machine agent ----
+appd_MachAgent_start() {
+    echo "Stoping Machine Agent if running"
+    appd_MachAgent_stop
+    echo Starting Machine Agent...
+    /bin/su $AGENT_USER -c "${APPD_HOME}/bin/appd_machineagent_start.sh" >> /dev/null 2>&1
+    "${APPD_HOME}/bin/appd_machineagent_start.sh" >> /dev/null 2>&1
+    sleep 5
+    appd_MachAgent_status
+}
+ 
+## STOP machine agent ----
+appd_MachAgent_stop() {
+    echo Stopping Machine Agent...
+    USERID=`/usr/bin/id -u $AGENT_USER`
+    PID=`/bin/ps -ef | grep $USERID | grep machineagent | grep -v grep  | awk '{print $2}'`
+    if [ -z $PID ]
+        then
+        echo "Machine Agent not Running"
+    else
+        kill -9 $PID
+        appd_MachAgent_status
+    fi
+}
+ 
+ 
+## RESTART machine agent ----
+appd_MachAgent_restart() {
+    appd_MachAgent_stop
+    appd_MachAgent_start
+    appd_MachAgent_status
+}
+ 
+## GET STATUS machine agent ----
+appd_MachAgent_status() {
+    echo Machine Agent status:
+    USERID=`/usr/bin/id -u $AGENT_USER`
+    PID=`/bin/ps -ef | grep $USERID | grep machineagent | grep -v grep  | awk '{print $2}'`
+    if [ -z $PID ]
+        then
+        echo "Machine Agent Not Running"
+        RETVAL=1
+    else
+        echo "Machine Agent is Running. Process $PID"
+        RETVAL=0
+    fi
+}
+ 
+case "$1" in
+    start)
+        appd_MachAgent_start
+        ;;
+    stop)
+        appd_MachAgent_stop
+        ;;
+    restart)
+        appd_MachAgent_restart
+        ;;
+    status)
+        appd_MachAgent_status
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+ 
+exit $RETVAL
