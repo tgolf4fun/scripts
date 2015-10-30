@@ -1,0 +1,26 @@
+%s - string
+%d - number
+
+
+String methods
+len("Charlie")
+"Delta".upper()
+"Echo".lower()
+
+g = "Golf"
+h = "Hotel"
+print "%s, %s" % (g, h)
+
+#######################Reusable code section###############################
+
+from datetime import datetime
+now = datetime.now()
+print now
+
+print now.year
+print now.month
+print now.day
+print now.hour
+print now.minute
+print now.second
+
