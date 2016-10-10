@@ -14,4 +14,5 @@ print "%s got %s eyes." % (my_name,  my_eyes)
 print "%s\'s teeth are usually %s but .........." % (my_name, my_teeth)
 
 #This is the tricky line
-print "If I add %d, %d, and %d I get %d." % (my_age, my_height, my_weight, my_age + my_height + my_weight)
+print "If I add %d, %d, and %d I get %d." % (my_age, my_height, my_weight, my_ag\
+e + my_height + my_weight)
