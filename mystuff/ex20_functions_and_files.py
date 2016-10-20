@@ -20,7 +20,7 @@ current_file = open(input_file)
 
 print_all(current_file)
 
-
+#outdated, tape?? wtf, actually start from line 1 and move on
 print "Now let's rewind, kind of like a tape."
 
 rewind(current_file)
@@ -30,6 +30,10 @@ current_line = 1
 print "Let's print three lines:"
 
 current_line = 1
+#while current_line < 4:
+#    print_a_line(current_line, current_file)
+
+current_line = current_line + 1
 print_a_line(current_line, current_file)
 
 current_line = current_line + 1
